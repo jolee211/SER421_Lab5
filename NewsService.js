@@ -29,8 +29,10 @@ exports.NewsService = class {
 	constructor() {
 		checkAndCreatePersistenceFile();
 
-		this.stories = [];
-		this.getStoriesFromFile();
+		this.stories = this.getStoriesFromFile();
+		if (!this.stories) {
+			this.stories = [];
+		}
 	}
 
 	persistStoriesToFile (stories) {
