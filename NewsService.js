@@ -1,3 +1,6 @@
+const fs = require('fs');
+const DATA_FILE_NAME = 'persistencestore.json';
+
 exports.NewsStory = class {
 	constructor() {
 		this.author = "";
@@ -8,12 +11,36 @@ exports.NewsStory = class {
 	}
 }
 
+function checkAndCreatePersistenceFile() {
+	try {
+		if (!fs.existsSync(DATA_FILE_NAME)) {
+			let data = [];
+			fs.writeFileSync(DATA_FILE_NAME, JSON.stringify(data, null, '\t'));
+		}
+	} catch (err) {
+		console.error(err);
+	}
+}
+
 /**
  * Represents the news service
  */
 exports.NewsService = class {
 	constructor() {
+		checkAndCreatePersistenceFile();
+
 		this.stories = [];
+		this.getStoriesFromFile();
+	}
+
+	persistStoriesToFile (stories) {
+		let storiesStringified = JSON.stringify(stories, null, '\t');
+		fs.writeFileSync(DATA_FILE_NAME, storiesStringified);
+	}
+
+	getStoriesFromFile () {
+		let storiesFromFile = fs.readFileSync(DATA_FILE_NAME, 'utf8');
+		return JSON.parse(storiesFromFile);
 	}
 
 	/**
@@ -29,6 +56,7 @@ exports.NewsService = class {
 		}
 		// add news story to persistent store
 		this.stories.push(newsStory);
+		this.persistStoriesToFile(this.stories);
 	}
 
 	/**
@@ -58,6 +86,7 @@ exports.NewsService = class {
 		let found = this.findIndex(oldHeadline);
 		if (found != -1) {
 			this.stories[found].headline = newHeadline;
+			this.persistStoriesToFile(this.stories);
 		}
 	}
 
@@ -76,6 +105,7 @@ exports.NewsService = class {
 		let found = this.findIndex(newsStory.headline);
 		if (found != -1) {
 			this.stories[found].content = newsStory.content;
+			this.persistStoriesToFile(this.stories);
 		}
 	}
 
@@ -105,6 +135,7 @@ exports.NewsService = class {
 		let found = this.findIndex(headline);
 		if (found != -1) {
 			this.stories.splice(found, 1);
+			this.persistStoriesToFile(this.stories);
 			return true;
 		}
 		return false;
