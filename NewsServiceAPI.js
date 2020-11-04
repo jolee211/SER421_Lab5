@@ -79,6 +79,21 @@ app.put(STORIES_BY_ID_PATH, function (req, res) {
     });
 });
 
+app.put('/editTitle', function (req, res, next) {
+    let author = req.body.author,
+        oldHeadline = req.body.oldHeadline,
+        newHeadline = req.body.newHeadline,
+        exists = newsService.findIndexByAuthorAndHeadline(author, oldHeadline) != -1;
+    if (exists) {
+        newsService.editTitle(author, oldHeadline, newHeadline);
+        return res.send(204);
+    } else {
+        err = new Error('Story not found');
+        err.status = 404;
+        return next(err);
+    }
+});
+
 // DELETE    /stories/:id    -> destroy
 app.delete(STORIES_BY_ID_PATH, function (req, res, next) {
     let id = req.params.id,

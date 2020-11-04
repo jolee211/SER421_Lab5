@@ -98,6 +98,34 @@ exports.NewsService = class {
 		return this.stories.findIndex(story => story.headline == headline);
 	}
 
+	/**
+	 * Returns the index of the first news story in the NewsService that matches the provided
+	 * author and headline. Otherwise, it returns -1, indicating that no news story matched.
+	 *
+	 * Params:
+	 *   author - the author to search for
+	 *   headline - the headline to search for
+	 *
+	 * Returns: The index of the first news story in the NewsService that matches the provided
+	 * author and headline. Otherwise, -1.
+	 */
+	findIndexByAuthorAndHeadline (author, headline) {
+		return this.stories.findIndex(
+			story => story.headline === headline && story.author === author
+		);
+	}
+
+	/**
+	 * Update the headline of an existing story.
+	 * 
+	 * Params:
+	 *   index - the index of the story to change
+	 *   newHeadline - the updated headline
+	 */
+	updateHeadlineByIndex (index, newHeadline) {
+		this.stories[index].headline = newHeadline;
+		this.persistStoriesToFile(this.stories);
+	}
 
 	/**
 	 * Update the headline of an existing story.
@@ -110,8 +138,24 @@ exports.NewsService = class {
 	updateHeadline (oldHeadline, newHeadline) {
 		let found = this.findIndex(oldHeadline);
 		if (found != -1) {
-			this.stories[found].headline = newHeadline;
-			this.persistStoriesToFile(this.stories);
+			this.updateHeadlineByIndex(found, newHeadline);
+		}
+	}
+
+	/**
+	 * Update the title of an existing story.
+	 * If the story corresponding to the passed-in oldHeadline and author doesn't exist, nothing 
+	 * happens.
+	 * 
+	 * Params:
+	 *   author - the author of the story
+	 *   oldHeadline - the headline to change
+	 *   newHeadline - the updated headline
+	 */
+	editTitle (author, oldHeadline, newHeadline) {
+		let found = this.findIndexByAuthorAndHeadline(author, oldHeadline);
+		if (found != -1) {
+			this.updateHeadlineByIndex(found, newHeadline);
 		}
 	}
 
