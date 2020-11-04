@@ -81,6 +81,20 @@ app.put(STORIES_BY_ID_PATH, function (req, res) {
     });
 });
 
+// DELETE    /stories/:id    -> destroy
+app.delete(STORIES_BY_ID_PATH, function (req, res, next) {
+    let id = req.params.id,
+        body = newsService.getById(id),
+        err;
+    if (!body) {
+        err = new Error('Story not found');
+        err.status = 404;
+        return next(err);
+    }
+    newsService.delete(body.headline);
+    res.send(204);
+});
+
 // Deliver 405 errors if the request method isn't defined
 app.all('/stories', errorHandler.httpError(405));
 
