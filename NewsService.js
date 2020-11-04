@@ -2,12 +2,19 @@ const fs = require('fs');
 const DATA_FILE_NAME = 'persistencestore.json';
 
 exports.NewsStory = class {
-	constructor() {
+	constructor (obj) {
 		this.author = "";
 		this.headline = "";
 		this.public = false;
 		this.content = "";
 		this.date = null;
+		if (obj) {
+			this.author = obj.author;
+			this.headline = obj.headline;
+			this.public = obj.public;
+			this.content = obj.content;
+			this.date = obj.date;
+		}
 	}
 }
 
