@@ -70,10 +70,17 @@
 		"date": "1994-12-12T07:00:00.000Z"
 	},
 	{
-		"author": "Dan Mangan",
-		"headline": "Biden and Trump campaigns both claim to be winning the election",
-		"public": true,
-		"content": "The campaigns for President Donald Trump and former Vice President Joe Biden each claimed Wednesday morning that they would win the presidential election, based on their expectations in states that have yet to be called. Biden’s campaign said that the Democratic nominee is on track to win the key battleground states of Michigan, Wisconsin and Pennsylvania, and that if the vote counting ended as of the call, he would win the election.The campaigns for President Donald Trump and former Vice President Joe Biden hosted dueling press calls Wednesday morning where each insisted their candidate would win the presidential election, based on anticipated vote counts in states that are crucial to an Electoral College victory.",
-		"date": "1989-11-16T07:00:00.000Z"
+		"author": "Christina Wilkie",
+		"headline": "Joe Biden is the apparent winner in Wisconsin, a state Trump won in 2016",
+		"public": false,
+		"content": "Joe Biden is the apparent winner in Wisconsin, according to an NBC News projection, flipping a state that President Donald Trump had won in 2016. As of Wednesday afternoon, NBC showed Biden leading Trump by approximately 21,000 votes. The Trump campaign has already announced that it plans to request a formal recount in the state.",
+		"date": "1980-9-1T07:00:00.000Z"
+	},
+	{
+		"author": "Christina Wilkie",
+		"headline": "Joe Biden is the apparent winner in Wisconsin, a state Trump won in 2016",
+		"public": false,
+		"content": "Joe Biden is the apparent winner in Wisconsin, according to an NBC News projection, flipping a state that President Donald Trump had won in 2016. As of Wednesday afternoon, NBC showed Biden leading Trump by approximately 21,000 votes. The Trump campaign has already announced that it plans to request a formal recount in the state.",
+		"date": "1980-9-1T07:00:00.000Z"
 	}
 ]

@@ -16,6 +16,7 @@ app.use(express.urlencoded());
 app.use(log.requestLogger());
 
 const STORIES_PATH = '/stories';
+const STORIES_BY_ID_PATH = STORIES_PATH + '/:id';
 
 // Response to GET requests on /stories
 app.get(STORIES_PATH, function (req, res) {
@@ -51,9 +52,9 @@ app.options(STORIES_PATH, function (req, res) {
 });
 
 // GET    /stories/:id    -> show
-app.get(STORIES_PATH + '/:id', function (req, res, next) {
+app.get(STORIES_BY_ID_PATH, function (req, res, next) {
     let id = req.params.id,
-        body = newsService.getStories()[id],
+        body = newsService.getById(id),
         err;
     if (!body) {
         err = new Error('Story not found');
@@ -61,7 +62,24 @@ app.get(STORIES_PATH + '/:id', function (req, res, next) {
         return next(err);
     }
     res.send(200, body);
-})
+});
+
+// PUT    /stories/:id    -> create or update
+app.put(STORIES_BY_ID_PATH, function (req, res) {
+    let story = new NewsStory(req.body),
+        id = req.params.id,
+        exists = newsService.getById(id);
+    newsService.setStory(id, story);
+    if (exists) {
+        return res.send(204);
+    }
+    
+    // make sure that id is valid
+    id = newsService.findIndex(story.headline);
+    res.send(201, {
+        href: '/stories/' + id
+    });
+});
 
 // Deliver 405 errors if the request method isn't defined
 app.all('/stories', errorHandler.httpError(405));

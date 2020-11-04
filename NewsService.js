@@ -148,6 +148,38 @@ exports.NewsService = class {
 	}
 
 	/**
+	 * Retrieve a news story using its ID.
+	 *
+	 * Params:
+	 *   id - the ID of the news story to retrieve
+	 *
+	 * Returns: the NewsStory corresponding to the ID, or undefined if the ID can't
+	 *   be found
+	 */
+	getById (id) {
+		return this.getStories()[id];
+	}
+
+	/**
+	 * Change the news story at a specified index. If the index is non-zero, but greater than the
+	 * current length of the stories array, the news story is appended to the stories array.
+	 *
+	 * Params:
+	 *   index - the index to change
+	 *   newsStory - the NewsStory object to set
+	 */
+	setStory (index, newsStory) {
+		if (index > 0) {
+			if (index < this.stories.length) {
+				this.stories[index] = newsStory;
+			} else {
+				this.stories.push(newsStory);
+			}
+			this.persistStoriesToFile(this.stories);
+		}
+	}
+
+	/**
 	 * Remove the story associated with the specified headline from the NewsService
 	 *
 	 * Params:
