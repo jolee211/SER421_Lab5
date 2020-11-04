@@ -46,6 +46,9 @@ app.post(STORIES_PATH, function (req, res) {
 });
 
 // Send available options on OPTIONS requests
+app.options(STORIES_PATH, function (req, res) {
+    res.send(['GET', 'POST', 'OPTIONS']);
+});
 
 // Deliver 405 errors if the request method isn't defined
 app.all('/stories', errorHandler.httpError(405));
