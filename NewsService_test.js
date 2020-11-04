@@ -16,7 +16,7 @@ const story9Headline = "Remember Those Few Glorious Minutes When the World Was F
 const story10Headline = "'I turned away Beatles for just £25'";
 
 function setUp() {
-	newsService = new NewsService();
+	newsService = new NewsService(true);	// start with no news stories
 	newsStory = new NewsStory();
 	newsStory.headline = "Wildfires kill eight";
 	newsStory.content = "Oregon faces fire conditions unseen in decades";
@@ -25,7 +25,7 @@ function setUp() {
 }
 
 function setUpMultipleStories() {
-	newsService = new NewsService();
+	newsService = new NewsService(true);	// start with no news stories
 	// Story 1
 	let ns = new NewsStory();
 	ns.headline = story1Headline;
