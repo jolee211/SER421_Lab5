@@ -11,11 +11,15 @@ exports.NewsStory = class {
 	}
 }
 
+function createBlankPersistenceFile() {
+	let data = [];
+	fs.writeFileSync(DATA_FILE_NAME, JSON.stringify(data, null, '\t'));
+}
+
 function checkAndCreatePersistenceFile() {
 	try {
 		if (!fs.existsSync(DATA_FILE_NAME)) {
-			let data = [];
-			fs.writeFileSync(DATA_FILE_NAME, JSON.stringify(data, null, '\t'));
+			createBlankPersistenceFile();
 		}
 	} catch (err) {
 		console.error(err);
@@ -26,8 +30,12 @@ function checkAndCreatePersistenceFile() {
  * Represents the news service
  */
 exports.NewsService = class {
-	constructor() {
-		checkAndCreatePersistenceFile();
+	constructor (reset) {
+		if (reset) {
+			createBlankPersistenceFile();
+		} else {
+			checkAndCreatePersistenceFile();
+		}
 
 		this.stories = this.getStoriesFromFile();
 		if (!this.stories) {
@@ -42,7 +50,15 @@ exports.NewsService = class {
 
 	getStoriesFromFile () {
 		let storiesFromFile = fs.readFileSync(DATA_FILE_NAME, 'utf8');
-		return JSON.parse(storiesFromFile);
+		try {
+			return JSON.parse(storiesFromFile);
+		} catch (err) {
+			if (err.name === 'SyntaxError') {
+				console.error('Not returning anything from getStoriesFromFile() because of an error in reading JSON');
+			} else {
+				throw err;
+			}
+		}
 	}
 
 	/**
