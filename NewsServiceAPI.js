@@ -46,11 +46,6 @@ app.post(STORIES_PATH, function (req, res) {
     });
 });
 
-// Send available options on OPTIONS requests
-app.options(STORIES_PATH, function (req, res) {
-    res.send(['GET', 'POST', 'OPTIONS']);
-});
-
 // GET    /stories/:id    -> show
 app.get(STORIES_BY_ID_PATH, function (req, res, next) {
     let id = req.params.id,
@@ -93,6 +88,11 @@ app.delete(STORIES_BY_ID_PATH, function (req, res, next) {
     }
     newsService.delete(body.headline);
     res.send(204);
+});
+
+// Send available options on OPTIONS requests
+app.options(STORIES_PATH, function (req, res) {
+    res.send(['GET', 'PUT', 'DELETE', 'OPTIONS']);
 });
 
 // Deliver 405 errors if the request method isn't defined
