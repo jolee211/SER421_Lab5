@@ -35,8 +35,7 @@ app.get(STORIES_PATH, function (req, res) {
     res.send(index);
 });
 
-// POST    /stories    -> create, return URI
-app.post(STORIES_PATH, function (req, res) {
+const create = function (req, res) {
     let story = new NewsStory(req.body);
     newsService.writeNewsStory(story);
     
@@ -44,7 +43,11 @@ app.post(STORIES_PATH, function (req, res) {
     res.send(201, {
         href: '/stories/' + id
     });
-});
+};
+
+// POST    /stories    -> create, return URI
+app.post(STORIES_PATH, create);
+app.post('/create', create);
 
 // GET    /stories/:id    -> show
 app.get(STORIES_BY_ID_PATH, function (req, res, next) {
