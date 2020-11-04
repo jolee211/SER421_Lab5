@@ -94,8 +94,23 @@ app.put('/editTitle', function (req, res, next) {
     }
 });
 
-// DELETE    /stories/:id    -> destroy
-app.delete(STORIES_BY_ID_PATH, function (req, res, next) {
+app.put('/editContent', function (req, res, next) {
+    let author = req.body.author,
+        headline = req.body.headline,
+        newContent = req.body.newContent,
+        newsStory = newsService.get(headline);
+    if (newsStory) {
+        newsStory.content = newContent;
+        newsService.updateContent(newsStory);
+        return res.send(204);
+    } else {
+        err = new Error('Story not found');
+        err.status = 404;
+        return next(err);
+    }
+})
+
+const deleteFn = function (req, res, next) {
     let id = req.params.id,
         body = newsService.getById(id),
         err;
@@ -106,7 +121,11 @@ app.delete(STORIES_BY_ID_PATH, function (req, res, next) {
     }
     newsService.delete(body.headline);
     res.send(204);
-});
+};
+
+// DELETE    /stories/:id    -> destroy
+app.delete(STORIES_BY_ID_PATH, deleteFn);
+app.delete('/delete/:id', deleteFn);
 
 // Send available options on OPTIONS requests
 app.options(STORIES_PATH, function (req, res) {
