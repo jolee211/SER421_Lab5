@@ -17,7 +17,19 @@ app.use(log.requestLogger());
 
 // Response to GET requests on /stories
 app.get('/stories', function (req, res) {
-    res.send(newsService.getStories());
+    let index = newsService.getStories().map(function (story, i) {
+        return {
+            href: '/stories/' + i,
+            properties: {
+                author: story.author,
+                headline: story.headline,
+                public: story.public,
+                content: story.content,
+                date: story.date
+            }
+        };
+    });
+    res.send(index);
 });
 
 // Deliver 405 errors if the request method isn't defined
