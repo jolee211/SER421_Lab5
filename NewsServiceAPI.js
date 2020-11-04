@@ -15,8 +15,10 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(log.requestLogger());
 
+const STORIES_PATH = '/stories';
+
 // Response to GET requests on /stories
-app.get('/stories', function (req, res) {
+app.get(STORIES_PATH, function (req, res) {
     let index = newsService.getStories().map(function (story, i) {
         return {
             href: '/stories/' + i,
@@ -31,6 +33,19 @@ app.get('/stories', function (req, res) {
     });
     res.send(index);
 });
+
+// POST    /stories    -> create, return URI
+app.post(STORIES_PATH, function (req, res) {
+    let story = new NewsStory(req.body);
+    newsService.writeNewsStory(story);
+    
+    let id = newsService.findIndex(story.headline);
+    res.send(201, {
+        href: '/stories/' + id
+    });
+});
+
+// Send available options on OPTIONS requests
 
 // Deliver 405 errors if the request method isn't defined
 app.all('/stories', errorHandler.httpError(405));
