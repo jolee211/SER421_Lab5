@@ -50,6 +50,19 @@ app.options(STORIES_PATH, function (req, res) {
     res.send(['GET', 'POST', 'OPTIONS']);
 });
 
+// GET    /stories/:id    -> show
+app.get(STORIES_PATH + '/:id', function (req, res, next) {
+    let id = req.params.id,
+        body = newsService.getStories()[id],
+        err;
+    if (!body) {
+        err = new Error('Story not found');
+        err.status = 404;
+        return next(err);
+    }
+    res.send(200, body);
+})
+
 // Deliver 405 errors if the request method isn't defined
 app.all('/stories', errorHandler.httpError(405));
 
