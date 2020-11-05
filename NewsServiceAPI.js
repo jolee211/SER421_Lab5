@@ -1,4 +1,7 @@
+'use strict'
+
 const { NewsStory, NewsService } = require('./NewsService.js');
+const url = require('url');
 
 const newsService = new NewsService();
 
@@ -43,28 +46,41 @@ function createStory(obj) {
     return { story: story, id: id };
 }
 
-const create = function (req, res) {
+const create = function (req, res, next) {
     if (!Array.isArray(req.body)) {
-        let obj = createStory(req.body);
-        res.send(201, {
-            href: '/stories/' + obj.id
-        });
+        let obj;
+        try {
+            obj = createStory(req.body);
+            res.send(201, {
+                href: '/stories/' + obj.id
+            });
+        } catch (e) {
+            return res.send(500, {
+                message: err.message
+            });
+        }
     } else {
         let storiesArray = req.body;
         let returnArray = [];
-        storiesArray.forEach((element) => {
-            let obj = createStory(element);
-            returnArray.push({
-                href: '/stories/' + obj.id,
-                properties: {
-                    author: obj.story.author,
-                    headline: obj.story.headline,
-                    public: obj.story.public,
-                    content: obj.story.content,
-                    date: obj.story.date
-                }
+        try {
+            storiesArray.forEach((element) => {
+                let obj = createStory(element);
+                returnArray.push({
+                    href: '/stories/' + obj.id,
+                    properties: {
+                        author: obj.story.author,
+                        headline: obj.story.headline,
+                        public: obj.story.public,
+                        content: obj.story.content,
+                        date: obj.story.date
+                    }
+                });
             });
-        });
+        } catch (e) {
+            return res.send(500, {
+                message: err.message
+            });
+        }
         res.send(returnArray);
     }
 };
@@ -73,17 +89,37 @@ const create = function (req, res) {
 app.post(STORIES_PATH, create);
 app.post('/create', create);
 
-// GET    /stories/:id    -> show
-app.get(STORIES_BY_ID_PATH, function (req, res, next) {
-    let id = req.params.id,
-        body = newsService.getById(id),
-        err;
-    if (!body) {
-        err = new Error('Story not found');
+function sendObject(obj, res) {
+    if (!obj) {
+        let err = new Error('Story not found');
         err.status = 404;
         return next(err);
     }
-    res.send(200, body);
+    res.send(200, obj);
+}
+
+// GET    /stories/:id    -> show
+app.get(STORIES_BY_ID_PATH, function (req, res, next) {
+    let id = req.params.id,
+        body = newsService.getById(id);
+    sendObject(body, res);
+});
+
+app.get('/search', function (req, res, next) {
+    let queryObject = url.parse(req.url, true).query,
+        criteria = { 
+            headline: queryObject.headline,
+            dateFrom: queryObject.dateFrom
+        },
+        filteredStories;
+    try {
+        filteredStories = newsService.filter(criteria);
+    } catch (err) {
+        return res.send(500, {
+            message: err.message
+        });
+    }
+    sendObject(filteredStories, res);
 });
 
 // PUT    /stories/:id    -> create or update
