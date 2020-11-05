@@ -107,13 +107,9 @@ app.get(STORIES_BY_ID_PATH, function (req, res, next) {
 
 app.get('/search', function (req, res, next) {
     let queryObject = url.parse(req.url, true).query,
-        criteria = { 
-            headline: queryObject.headline,
-            dateFrom: queryObject.dateFrom
-        },
         filteredStories;
     try {
-        filteredStories = newsService.filter(criteria);
+        filteredStories = newsService.filter(queryObject);
     } catch (err) {
         return res.send(500, {
             message: err.message
@@ -148,7 +144,7 @@ app.put('/editTitle', function (req, res, next) {
         newsService.editTitle(author, oldHeadline, newHeadline);
         return res.send(204);
     } else {
-        err = new Error('Story not found');
+        let err = new Error('Story not found');
         err.status = 404;
         return next(err);
     }
