@@ -35,14 +35,38 @@ app.get(STORIES_PATH, function (req, res) {
     res.send(index);
 });
 
-const create = function (req, res) {
-    let story = new NewsStory(req.body);
+function createStory(obj) {
+    let story = new NewsStory(obj);
     newsService.writeNewsStory(story);
     
     let id = newsService.findIndex(story.headline);
-    res.send(201, {
-        href: '/stories/' + id
-    });
+    return { story: story, id: id };
+}
+
+const create = function (req, res) {
+    if (!Array.isArray(req.body)) {
+        let obj = createStory(req.body);
+        res.send(201, {
+            href: '/stories/' + obj.id
+        });
+    } else {
+        let storiesArray = req.body;
+        let returnArray = [];
+        storiesArray.forEach((element) => {
+            let obj = createStory(element);
+            returnArray.push({
+                href: '/stories/' + obj.id,
+                properties: {
+                    author: obj.story.author,
+                    headline: obj.story.headline,
+                    public: obj.story.public,
+                    content: obj.story.content,
+                    date: obj.story.date
+                }
+            });
+        });
+        res.send(returnArray);
+    }
 };
 
 // POST    /stories    -> create, return URI

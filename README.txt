@@ -14,8 +14,9 @@ Make sure to submit the Postman requests in order:
 3. testR3
 4. testR4
 5. testR2WithNonExistingItem
-6. testR5a
-7. testR5b
-8. testR5c
-9. testR5ac
-10. testR5abc
+6. setUpMultipleStories
+7. testR5a
+8. testR5b
+9. testR5c
+10. testR5ac
+11. testR5abc
