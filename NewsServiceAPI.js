@@ -14,12 +14,33 @@ let express = require('express'),
     server,
     port = 3000;
 
+const { User } = require('./User');
+let jwtauth = require('./lib/jwtauth');
+
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(log.requestLogger());
+app.set('jwtTokenSecret', 'secret-value');
 
 const STORIES_PATH = '/stories';
 const STORIES_BY_ID_PATH = STORIES_PATH + '/:id';
+
+// A middleware function to restrict access to authenticated users
+let requireAuth = function (req, res, next) {
+    if (!req.user) {
+        res.end('Not authorized', 401);
+    } else {
+        next();
+    }
+}
+
+// Load up the controllers
+let controllers = require('./controllers');
+controllers.set(app);
+
+let urlencodedParser = bodyParser.urlencoded({ extended: false });
+// an array of functions that need to be called for each token-protected route
+let preprocessors = [urlencodedParser, jwtauth, requireAuth];
 
 // Response to GET requests on /stories
 app.get(STORIES_PATH, function (req, res) {
@@ -87,7 +108,7 @@ const create = function (req, res, next) {
 
 // POST    /stories    -> create, return URI
 app.post(STORIES_PATH, create);
-app.post('/create', create);
+app.post('/create', preprocessors, create);
 
 function sendObject(obj, res) {
     if (!obj) {
@@ -186,6 +207,11 @@ app.delete('/delete/:id', deleteFn);
 // Send available options on OPTIONS requests
 app.options(STORIES_PATH, function (req, res) {
     res.send(['GET', 'PUT', 'DELETE', 'OPTIONS']);
+});
+
+// logout
+app.post('/logout', function (req, res, next) {
+    jwtauth.logout(req, res, next);
 });
 
 // Deliver 405 errors if the request method isn't defined

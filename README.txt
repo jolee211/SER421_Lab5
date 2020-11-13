@@ -4,6 +4,10 @@ Modules required:
 express
 bunyan-request-logger
 express-error-handler
+moment
+jwt-simple
+
+There is a package-lock.json file included.
 
 
 TESTING
