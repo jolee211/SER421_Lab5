@@ -1,0 +1,12 @@
+{
+    "name": "dlee129-421lab5",
+    "version": "0.0.1",
+    "description": "Implementation of NewsService API",
+    "dependencies": {
+        "express": "4.x",
+        "bunyan-request-logger": "2.1.0",
+        "express-error-handler": "1.1.0",
+        "moment": "2.6.0",
+        "jwt-simple": "0.2.0"
+    }
+}
