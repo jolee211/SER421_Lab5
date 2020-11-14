@@ -23,6 +23,9 @@ These Postman requests can be used to set up stories:
 3. setUpMoreStoriesOfSameAuthors - write multiple stories with same authors as ones from the 
    setUpMultipleStories request
 
+Some of these requests require you to be authenticated, so there is also a login request. Copy the token
+that is returned from /login and set the x-access-token header to it.
+
 Here are the Postman requests for testing:
 1. testR1
 2. testR2
