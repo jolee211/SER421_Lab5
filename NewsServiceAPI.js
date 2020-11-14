@@ -9,14 +9,76 @@ let express = require('express'),
     http = require('http'),
     logger = require('bunyan-request-logger'),
     errorHandler = require('express-error-handler'),
+    jwt = require('jwt-simple'),
+    moment = require('moment'),
+    bodyParser = require('body-parser'),
     app = express(),
     log = logger(),
+    urlencodedParser = bodyParser.urlencoded({ extended: false }),
     server,
-    port = 3000;
+    port = 3000,
+    jwtBlacklist = [];
+    
+const User = class {
+    constructor (username) {
+        this.username = username;
+    }
 
-const { User } = require('./User');
-const { auth, logout, jwtTokenSecret } = require('./lib/jwtauth.js');
-let bodyParser = require('body-parser');
+    comparePassword (candidate, callback) {
+        callback(candidate === this.username);
+    }
+
+    toJSON () {
+        return JSON.stringify({ username: this.username });
+    }
+};
+
+const jwtTokenSecret = 'secret-value';
+
+const auth = function (req, res, next) {
+    // parse the URL
+    let parsed_url = url.parse(req.url, true);
+
+    // Take the token from:
+    // - the POST value access_token
+    // - the GET parameter access_token
+    // - the x-access-token header
+    // ... in that order
+    let token = (req.body && req.body.access_token) || parsed_url.query.access_token || req.headers['x-access-token'];
+    if (token && !jwtBlacklist.includes(token)) {
+        try {
+            let decoded = jwt.decode(token, jwtTokenSecret);
+            if (decoded.exp <= Date.now()) {
+                res.end('Access token has expired', 400);
+            } else {
+                req.user = {
+                    username: decoded.iss,
+                    password: decoded.iss
+                };
+                return next();
+            }
+        } catch (err) {
+            return next();
+        }
+    } else {
+        next();
+    }
+};
+
+const logout = function (req, res, next) {
+    // parse the URL
+    let parsed_url = url.parse(req.url, true);
+    // Take the token from:
+    // - the POST value access_token
+    // - the GET parameter access_token
+    // - the x-access-token header
+    // ... in that order
+    let token = (req.body && req.body.access_token) || parsed_url.query.access_token || req.headers['x-access-token'];
+    if (token) {
+        jwtBlacklist.push(token);
+    }
+    return res.send(204);
+};
 
 app.use(express.json());
 app.use(express.urlencoded());
@@ -36,11 +98,38 @@ let requireAuth = function (req, res, next) {
     }
 }
 
-// Load up the controllers
-let controllers = require('./controllers');
-controllers.set(app);
+// Load up the auth controller
+app.get('/login', urlencodedParser, function (req, res) {
+    if (req.headers.username && req.headers.password) {
+        // match the username and password
+        let user = new User(req.headers.username);
+        user.comparePassword(req.headers.password, function (isMatch) {
+            if (isMatch) {
+                // user has successfully authenticated, so we can generate and send back a token
+                let expires = moment().add('days', 7).valueOf();
+                let token = jwt.encode(
+                    {
+                        iss: user.username,
+                        exp: expires
+                    },
+                    app.get('jwtTokenSecret')
+                );
+                res.json({
+                    token: token,
+                    expires: expires,
+                    user: user.toJSON()
+                });
+            } else {
+                // the password is wrong...
+                res.send('Authentication error', 401);
+            }
+        });
+    } else {
+        // no username provided, or invalid POST request
+        res.send('Authentication error', 401);
+    }
+});
 
-let urlencodedParser = bodyParser.urlencoded({ extended: false });
 // an array of functions that need to be called for each token-protected route
 let preprocessors = [urlencodedParser, auth, requireAuth];
 
